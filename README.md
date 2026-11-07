@@ -1,21 +1,60 @@
-# Google Sheets Template Generator
+# Gmail Cleaner
 
-A Google Apps Script web app that copies a Google Sheets template from Google Drive, saves the copy in a chosen folder, enables **anyone with the link to edit**, and displays a clickable link to the new spreadsheet.
+A Python script that connects to Gmail over IMAP, checks messages in a date range, and deletes emails whose subject contains configured keywords.
 
-## Setup
+## What it does
 
-1. Open [Google Apps Script](https://script.google.com/) and create a project.
-2. Add the contents of `Code.gs` to the project.
-3. In **Project Settings → Script Properties**, add:
-   - `TEMPLATE_SPREADSHEET_ID`: the ID of the source Google Sheets template.
-   - `DESTINATION_FOLDER_ID`: the ID of the Drive folder where copies should be saved.
-4. Deploy the project as a **Web app**. Choose the account that should own/create the copies under **Execute as**, and configure who can access the web app.
-5. Authorize the requested Google Drive permissions, then open the deployment URL.
+- Logs into Gmail using IMAP
+- Searches the inbox for messages in a selected date range
+- Decodes and inspects email subjects
+- Deletes emails that match spam or promotional keywords
+- Saves progress so it can resume after interruptions
 
-The template ID is the portion after `/spreadsheets/d/` in its URL. The destination folder ID is the portion after `/folders/` in its URL. The configured template must be a native Google Sheets file.
+## Tech Stack
 
-## Behavior and sharing warning
+- Python
+- Gmail IMAP
+- `python-dotenv`
 
-Each web app request creates a fresh copy. The copy name includes a timestamp and a random suffix to keep names unique. The script then sets the copy's sharing to **Anyone with the link — Editor** and returns its URL. This makes the spreadsheet editable by anyone who gets the link; do not use this setting for sensitive data. Google Workspace administrators may prohibit public link sharing, in which case creation will report an error.
+## Requirements
 
-The account selected under **Execute as** needs access to both the template and destination folder. Restrict web app access appropriately: anyone allowed to run it may cause a new copy to be created each time they open the app.
+- Python 3
+- Gmail account with IMAP enabled
+- App password or account setup required by your Gmail security settings
+- `python-dotenv` installed
+
+Install the dependency:
+
+```bash
+python -m pip install python-dotenv
+```
+
+## Configuration
+
+Create a `.env` file in the project root with:
+
+```env
+EMAIL_USER=your-email@example.com
+EMAIL_PASS=your-app-password
+```
+
+The script loads these values automatically.
+
+## Customization
+
+Open `main.py` to adjust:
+
+- `keywords` list
+- `SINCE` and `BEFORE` date range
+- `BATCH_SIZE`
+- `progress_file`
+
+## Run
+
+```bash
+python main.py
+```
+
+## Warning
+
+This script permanently deletes matching emails from the inbox. Review the keywords and date range carefully before running it in a production mail account.
